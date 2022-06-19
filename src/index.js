@@ -83,24 +83,37 @@ allProjects.addItem(third);
 allProjects.addItem(fifth);
 console.log(allProjects.toDoItems);
 
-
+// DOM for the body
 const body = document.body;
 
+const topMenu = document.createElement('div');
+topMenu.classList.add("topMenu");
+
+const sideMenu = document.createElement('div');
+sideMenu.classList.add("sideMenu");
+
+const main = document.createElement('div');
+main.classList.add("menu");
+
+const footer = document.createElement('div');
+footer.classList.add("footer");
+
+// Initial loadup
 const start = function() {
-    const initial = []
+    const initial = [];
 
-    const topMenu = document.createElement('div');
-    const sideMenu = document.createElement('div');
-    const main = document.createElement('div');
-    const footer = document.createElement('div');
+    initial.push(top());
+    initial.push(side());
+    initial.push(mid());
+    initial.push(foot());
+    
+    return initial;
+}
 
+const top = function() {
     topMenu.innerHTML = 
     `
-    <div class="searchBar">
-        <form action="#">
-            <input type="text" name="search" id="search">
-        </form>
-    </div>
+    <i class="fa-solid fa-bars"></i>
 
     <div class="username">
         <div class="userintro">
@@ -109,12 +122,28 @@ const start = function() {
         </div>
     </div>
 
-    <div class="headerButtons">
-        <button>New</button>
-        <button>Sort</button>
+
+    <div class="topRight">
+        <div class="topButtons">
+            <button>New</button>
+            <button>Sort</button>
+        </div>
+
+        <div class="searchBar">
+        <form action="#">
+            <div class = "input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="search" id="search" placeholder="      Search:">
+            </div>
+        </form>
+        </div>
     </div>
     `;
 
+    return topMenu;
+}
+     
+const side = function() {
     sideMenu.innerHTML = 
     `
     <h1>Todo App</h1>
@@ -130,24 +159,26 @@ const start = function() {
         <li>New Project</li>
     </ol>
     `;
+    
+    return sideMenu;
+}
 
+const mid = function() {
     main.innerHTML = 
     `
         Main
     `;
+    
+    return main;
+}
 
+const foot = function() {
     footer.innerHTML = 
     `
         <p>Made by Kevin Drake for The Odin Project <a href="https://github.com/kdrake1992"><i class="fa-brands fa-github"></i></a><p>
     `;
 
-
-    initial.push(topMenu);
-    initial.push(sideMenu);
-    initial.push(main);
-    initial.push(footer);
-    
-    return initial;
+    return footer;
 }
 
 console.log("Test")

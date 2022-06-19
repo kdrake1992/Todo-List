@@ -11,9 +11,10 @@ body {
 
     display: grid;
     grid-template-rows: repeat(8, minmax(0,1));
-    grid-template-columns: repeat(5, minmax(0,1)); 
+    grid-template-columns: repeat(5, minmax(0,1));  
 }
 
+/* Top Menu */
 .topMenu {
     background-color: #71C9CE;
 
@@ -25,6 +26,44 @@ body {
     align-items: center;
 }
 
+.topMenu .topRight {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.topMenu .topButtons {
+    display: flex;
+    justify-content: space-between
+}
+
+.topMenu .topRight button {
+    padding: 3px;
+    border-radius: 5px;
+    border: 1px gray solid;
+    width: 70px;
+}
+
+.topMenu input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid gray;
+    width: 150px;
+}
+
+.topMenu .input-wrapper {
+    position: relative
+}
+
+.fa-magnifying-glass {
+    color: gray;
+    position: absolute; top: 5px; left: 7px; 
+}
+
+
+
+
+/* Side Menu */
 .sideMenu {
     background-color: #A6E3E9;
 
@@ -38,7 +77,7 @@ body {
     padding-left: 15px;
 
     align-items: left;
-    gap: 50px;
+    gap: 40px;
 }
 
 .sideMenu li h2 {

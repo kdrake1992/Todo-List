@@ -81,7 +81,6 @@ const highPriority = project();
 allProjects.addItem(first);
 allProjects.addItem(third);
 allProjects.addItem(fifth);
-console.log(allProjects.toDoItems);
 
 // DOM for the body
 const body = document.body;
@@ -117,27 +116,20 @@ const top = function() {
 
     <div class="username">
         <div class="userintro">
-            <p id="small">Hi there,</p>
-            <h3>Kevin Drake</h3>
+            <p id="small">Hi there, Kevin Drake!</p>
         </div>
     </div>
 
-
-    <div class="topRight">
-        <div class="topButtons">
-            <button>New</button>
-            <button>Sort</button>
-        </div>
-
-        <div class="searchBar">
+    <div class="searchBar">
         <form action="#">
             <div class = "input-wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" name="search" id="search" placeholder="      Search:">
             </div>
         </form>
-        </div>
     </div>
+
+    <button>New</button>
     `;
 
     return topMenu;
@@ -146,17 +138,20 @@ const top = function() {
 const side = function() {
     sideMenu.innerHTML = 
     `
-    <h1>Todo App</h1>
+    <div class="logo">
+        <h1><i class="fa-solid fa-fire"></i></h1>
+        <h1>Yarukoto</h1>
+    </div>
     <ol class="toDoList">
         <li><h2><u>Menu</u></h2></li>
-        <li>All Tasks</li>
-        <li>Today</li>
-        <li>This Week</li>
-        <li>Important</li>
+        <li><i class="fa-solid fa-inbox"></i> All Tasks</li>
+        <li><i class="fa-solid fa-calendar-day"></i> Today</li>
+        <li><i class="fa-solid fa-calendar-week"></i> This Week</li>
+        <li><i class="fa-solid fa-bolt-lightning"></i> Important</li>
     </ol>
     <ol class="toDoList">
         <li><h2><u>Projects</u></h2></li>
-        <li>New Project</li>
+        <li><i class="fa-solid fa-plus"></i> New Project</li>
     </ol>
     `;
     
@@ -181,7 +176,6 @@ const foot = function() {
     return footer;
 }
 
-console.log("Test")
 start().forEach(e=> {
     body.appendChild(e);
 })

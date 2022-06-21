@@ -61,16 +61,27 @@ body {
     padding: 3px;
 }
 
+.sideMenu #projectList {
+    height: 60vh;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
 .sideMenu .fa-circle-plus {
     position: absolute;
     bottom: 4rem;
+    right: 2rem;
 
     size: 50px;
     color: rgb(18, 166, 18);
 }
-
 .sideMenu .fa-circle-plus:hover {
     color: rgb(46, 197, 46);
+    cursor: pointer;
+}
+
+#allTasks:hover, #today:hover, #currentWeek:hover, #important:hover, #addProject:hover, #task:hover {
+    color: rgb(232, 170, 14);
     cursor: pointer;
 }
 
@@ -100,16 +111,23 @@ body {
     color: white;
 }
 
-/* Form Task */
+/* Form Project */
+.projectForm {
+    background-color: #E3FDFD;
+    position: absolute;
+    top: 25%;
+    left: 30%;
+}
 
+/* Form Task */
 .formTask {
     background-color: #E3FDFD;
     position: absolute;
     top: 25%;
     left: 30%;
-
 }
-#addFormTask {
+
+#addFormTask, #addProjectForm{
     display: flex;
     flex-direction: column;
     padding: 20px;
@@ -119,7 +137,7 @@ body {
     border-radius: 15px;
 }
 
-#addFormTask .formInput {
+#addFormTask .formInput #addProjectForm .formInput {
     display: flex;
     flex-direction: column;
 }
@@ -129,7 +147,7 @@ body {
     justify-content:space-between
 }
 
-#addFormTask input[type=text] {
+#addFormTask input[type=text], #addProjectForm input[type=text] {
     width: 350px;
 }
 
@@ -143,16 +161,21 @@ body {
     resize: none;
 }
 
-#addFormTask .submitAndReset {
+#addFormTask .submitAndReset, #addFormProject .submitAndReset {
     display: flex;
     justify-content: center;
     gap: 10px;
 }
 
-#addFormTask button {
+#addFormTask button, #addFormProject button {
     padding: 5px;
     border: 1px rgba(0, 0, 0, 0.762) solid;
     border-radius: 5px;
+}
+
+#addFormTask button:hover, #addFormProjet button:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
 }
 
 /* Background effect for form and project */
@@ -169,5 +192,9 @@ body {
 
     .sideMenu {
         padding: 20px;
+    }
+
+    .sideMenu #projectList {
+        height: 45vh;
     }
   }

@@ -9,6 +9,7 @@ import '@fortawesome/fontawesome-free/js/brands';
 
 // Import date-fns webpack
 import { compareAsc, format, startOfDay } from 'date-fns';
+import { ro } from 'date-fns/locale';
 
 // Factory Function Todo Item
 const itemToDo = (title, details, dueDate, priority) => {
@@ -75,6 +76,7 @@ const allProjects = project();
 const todaysTasks = project()
 const thisWeeksTasks = project();
 const importantTasks = project();
+let projects = [];
 
 
 // Filler data
@@ -141,7 +143,7 @@ const side = function() {
         <li id="currentWeek"><i class="fa-solid fa-calendar-week"></i> This Week</li>
         <li id="important"><i class="fa-solid fa-bolt-lightning"></i> Important</li>
     </ol>
-    <ol class="toDoList">
+    <ol class="toDoList" id="projectList">
         <li><h2><u>Projects</u></h2></li>
         <li id="addProject"><i class="fa-solid fa-plus"></i> New Project</li>
     </ol>
@@ -222,6 +224,19 @@ const thunder = document.getElementById("important");
 const plusProject = document.getElementById("addProject");
 const plusTasks = document.getElementById("addTask");
 
+// Check if elements exist
+const formChecker = function() {
+    const projectCheck = document.getElementById('projectForm');
+    if (!!projectCheck) {
+        projectCheck.remove();
+    }
+
+    const taskCheck = document.getElementById('formTask');
+    if (!!taskCheck) {
+        taskCheck.remove();
+    }
+}
+
 tasks.addEventListener("click", e=> {
     console.log("1")
 })
@@ -239,20 +254,67 @@ thunder.addEventListener("click", e=> {
 })
 
 plusProject.addEventListener("click", e=> {
-    console.log("5")
+    formChecker();
+
+    const projectForm = document.createElement("div");
+    projectForm.classList.add("projectForm");
+    projectForm.setAttribute("id","projectForm");
+
+    projectForm.innerHTML = `
+        <form id="addProjectForm">
+        <legend>New Project</legend>
+
+        <div class="formInput">
+            <label for="task">Project*:</label>
+            <input type="text" name="projectName" id="projectName" required placeholder="Project Name">
+        </div>
+
+        <div class="submitAndReset">
+            <button type="submit" name="button" id="submit">Submit</button>
+        </div>
+        </form>
+        `
+        document.body.appendChild(projectForm);
+
+        document.getElementById("submit").addEventListener('click', e=> {
+            e.preventDefault();
+
+            let projectN = document.getElementById("projectName");;
+
+            if(projectN.value === "") {
+                alert("Form Incomplete");
+            }
+            else {
+                let newProject = project()
+                projects.push(newProject);
+
+                const list = document.getElementById("projectList");
+                let li = document.createElement("li");
+                li.setAttribute("id", projectN.value)
+                li.setAttribute("id", "task")
+
+                li.innerHTML = projectN.value;
+                list.appendChild(li)
+
+                projectForm.remove()
+            }
+        })
 })
 
 plusTasks.addEventListener("click", e=> {
+    formChecker();
+
     const taskForm = document.createElement("div");
     taskForm.classList.add("formTask");
+    taskForm.setAttribute("id", "formTask")
 
     taskForm.innerHTML = `
         <form id="addFormTask">
         <legend>New Task</legend>
 
         <div class="formInput">
-            <label for="task">Task:</label>
-            <input type="text" name="task" id="task" placeholder="Task">
+            <label for="task">Task*:</label>
+            <input type="text" name="task" id="task" required placeholder="Task">
         </div>
 
         <div class="formInput">
@@ -263,13 +325,13 @@ plusTasks.addEventListener("click", e=> {
 
         <div class="dateAndPrio">
             <div class="formInput">
-                <label for="date">Due Date:</label>
-                <input type="date" name="date" id="date">
+                <label for="date">Due Date*:</label>
+                <input type="date" name="date" id="date" required>
             </div>
 
             <div class="formInput">
-                <label for="priority">Priority:</label>
-                <select name="priority" id="priority">
+                <label for="priority">Priority*:</label>
+                <select name="priority" id="priority" required>
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -279,16 +341,10 @@ plusTasks.addEventListener("click", e=> {
 
         <div class="submitAndReset">
             <button type="submit" name="button" id="submit">Submit</button>
-            <button type="reset">Clear</button>
         </div>
         </form>
         `
         document.body.appendChild(taskForm);
-
-        topMenu.classList.add(".fade");
-        sideMenu.classList.add(".fade");
-        main.classList.add(".fade");
-        footer.classList.add(".fade");
 
         document.getElementById("submit").addEventListener('click', e=> {
             e.preventDefault();
@@ -298,10 +354,14 @@ plusTasks.addEventListener("click", e=> {
             let date = document.getElementById("date");
             let prio = document.getElementById("priority");
 
-            let newTask = itemToDo(task.value, descrip.value, date.value, prio.value);
-            allProjects.addItem(newTask);
-            console.log(allProjects.toDoItems);
+            if(task.value === "" || date.value == "") {
+                alert("Form Incomplete");
+            }
+            else {
+                let newTask = itemToDo(task.value, descrip.value, date.value, prio.value);
+                allProjects.addItem(newTask);
+
+                taskForm.remove()
+            }
         })
 })
-
-console.log(allProjects.toDoItems);

@@ -8,8 +8,10 @@ import '@fortawesome/fontawesome-free/js/regular';
 import '@fortawesome/fontawesome-free/js/brands';
 
 // Import date-fns webpack
-import { compareAsc, format, startOfDay } from 'date-fns';
+import { compareAsc, daysToWeeks, format, startOfDay } from 'date-fns';
 import { ro } from 'date-fns/locale';
+console.log(format(new Date(2022, 5, 22), 'MMM do, YYY'));
+// Currently prints 2022-06-22 on form
 
 // Factory Function Todo Item
 const itemToDo = (title, details, dueDate, priority) => {
@@ -157,7 +159,6 @@ const side = function() {
 const mid = function() {
     main.innerHTML = 
     `
-        Main
     `;
     
     return main;
@@ -237,20 +238,84 @@ const formChecker = function() {
     }
 }
 
+// Checks menus and removes old html menu
+const menuCheck = function() {
+
+    const allTaskCheck = document.getElementById("taskList");
+    if(!!allTaskCheck) {
+        allTaskCheck.remove();
+    }
+
+    const dayCheck = document.getElementById("dayList");
+    if(!!dayCheck) {
+        dayCheck.remove();
+    }
+
+    const weekCheck = document.getElementById("weekList");
+    if(!!weekCheck) {
+        weekCheck.remove();
+    }
+    const importantCheck = document.getElementById("importantList");
+    if(!!importantCheck) {
+        importantCheck.remove();
+    }
+}
+
+// Exit form
+const exitForm = function(currentForm) {
+    const exitCheck = document.getElementById('exit')
+    exitCheck.addEventListener('click', e=> {
+        currentForm.remove();
+    });
+}
+
+// Menu and Project event listeners
 tasks.addEventListener("click", e=> {
-    console.log("1")
+    menuCheck();
+
+    const taskL = document.createElement("div");
+    taskL.classList.add("list");
+    taskL.setAttribute("id","taskList");
+
+    taskL.innerHTML = "<h2><u>All Tasks</u></h2>"
+    main.appendChild(taskL);
+
+    allProjects.toDoItems.forEach(e=> {
+        console.log(e)
+    })
 })
 
 day.addEventListener("click", e=> {
-    console.log("2")
+    menuCheck();
+
+    const dayL = document.createElement("div");
+    dayL.classList.add("list");
+    dayL.setAttribute("id","dayList");
+
+    dayL.innerHTML = "<h2><u>Today's Task</u></h2>";
+    main.appendChild(dayL);
 })
 
 week.addEventListener("click", e=> {
-    console.log("3")
+    menuCheck();
+
+    const weekL = document.createElement("div");
+    weekL.classList.add("list");
+    weekL.setAttribute("id","weekList");
+
+    weekL.innerHTML = "<h2><u>This Week's Task</u></h2>";
+    main.appendChild(weekL);
 })
 
 thunder.addEventListener("click", e=> {
-    console.log("4")
+    menuCheck();
+
+    const importantL = document.createElement("div");
+    importantL.classList.add("list");
+    importantL.setAttribute("id","importantList");
+
+    importantL.innerHTML = "<h2><u>Important</u></h2>";
+    main.appendChild(importantL);
 })
 
 plusProject.addEventListener("click", e=> {
@@ -273,13 +338,16 @@ plusProject.addEventListener("click", e=> {
             <button type="submit" name="button" id="submit">Submit</button>
         </div>
         </form>
+
+        <div id="exit"><i class="fa-solid fa-xmark"></i></div>
         `
         document.body.appendChild(projectForm);
 
         document.getElementById("submit").addEventListener('click', e=> {
             e.preventDefault();
 
-            let projectN = document.getElementById("projectName");;
+            let projectN = document.getElementById("projectName");
+
 
             if(projectN.value === "") {
                 alert("Form Incomplete");
@@ -299,6 +367,7 @@ plusProject.addEventListener("click", e=> {
                 projectForm.remove()
             }
         })
+        exitForm(projectForm);
 })
 
 plusTasks.addEventListener("click", e=> {
@@ -343,6 +412,8 @@ plusTasks.addEventListener("click", e=> {
             <button type="submit" name="button" id="submit">Submit</button>
         </div>
         </form>
+
+        <div id="exit"><i class="fa-solid fa-xmark"></i></div>
         `
         document.body.appendChild(taskForm);
 
@@ -360,8 +431,10 @@ plusTasks.addEventListener("click", e=> {
             else {
                 let newTask = itemToDo(task.value, descrip.value, date.value, prio.value);
                 allProjects.addItem(newTask);
+                console.log(newTask)
 
                 taskForm.remove()
             }
         })
+        exitForm(taskForm);
 })

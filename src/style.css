@@ -86,11 +86,17 @@ body {
 }
 
 /* Main */
-.menu {
+.main {
     background-color: #E3FDFD;
 
     grid-row: 2/3;
     grid-column: 2/3 ;
+}
+
+.task {
+    padding: 5px;
+    border: 1px solid black;
+    width: 100%;
 }
 
 .list {
@@ -119,7 +125,7 @@ body {
 .projectForm {
     background-color: #E3FDFD;
     position: absolute;
-    top: 25%;
+    top: 30%;
     left: 30%;
 }
 
@@ -136,9 +142,9 @@ body {
     flex-direction: column;
     padding: 20px;
     gap: 15px;
-    border: 2px black solid;
+    border: 3px black solid;
     width: 350px;
-    border-radius: 15px;
+    border-radius: 10px;
 }
 
 #addFormTask .formInput #addProjectForm .formInput {
@@ -190,8 +196,8 @@ body {
 }
 
 /* Background effect for form and project */
-.fade {
-    opacity: 1;
+.blur {
+    opacity: .4;
 }
 
 @media only screen and (max-width: 768px) {

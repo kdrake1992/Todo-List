@@ -10,7 +10,7 @@ import '@fortawesome/fontawesome-free/js/brands';
 // Import date-fns webpack
 import { compareAsc, daysToWeeks, format, startOfDay } from 'date-fns';
 import { ro } from 'date-fns/locale';
-console.log(format(new Date(2022, 5, 22), 'MMM do, YYY'));
+console.log(format(new Date(2022, 5, 22), 'M/dd/yy '));
 // Currently prints 2022-06-22 on form
 
 // Factory Function Todo Item
@@ -96,7 +96,7 @@ const sideMenu = document.createElement('div');
 sideMenu.classList.add("sideMenu");
 
 const main = document.createElement('div');
-main.classList.add("menu");
+main.classList.add("main");
 
 const footer = document.createElement('div');
 footer.classList.add("footer");
@@ -266,7 +266,24 @@ const exitForm = function(currentForm) {
     const exitCheck = document.getElementById('exit')
     exitCheck.addEventListener('click', e=> {
         currentForm.remove();
+        removeBlur();
     });
+}
+
+// Add background blur
+const addBlur = function() {
+    topMenu.classList.add("blur");
+    sideMenu.classList.add("blur");
+    main.classList.add("blur");
+    footer.classList.add("blur");
+}
+
+// Remove background blur
+const removeBlur = function() {
+    topMenu.classList.remove("blur");
+    sideMenu.classList.remove("blur");
+    main.classList.remove("blur");
+    footer.classList.remove("blur"); 
 }
 
 // Menu and Project event listeners
@@ -320,6 +337,7 @@ thunder.addEventListener("click", e=> {
 
 plusProject.addEventListener("click", e=> {
     formChecker();
+    addBlur();
 
     const projectForm = document.createElement("div");
     projectForm.classList.add("projectForm");
@@ -365,6 +383,7 @@ plusProject.addEventListener("click", e=> {
                 list.appendChild(li)
 
                 projectForm.remove()
+                removeBlur();
             }
         })
         exitForm(projectForm);
@@ -372,6 +391,7 @@ plusProject.addEventListener("click", e=> {
 
 plusTasks.addEventListener("click", e=> {
     formChecker();
+    addBlur();
 
     const taskForm = document.createElement("div");
     taskForm.classList.add("formTask");
@@ -434,6 +454,7 @@ plusTasks.addEventListener("click", e=> {
                 console.log(newTask)
 
                 taskForm.remove()
+                removeBlur();
             }
         })
         exitForm(taskForm);

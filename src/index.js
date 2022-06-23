@@ -10,7 +10,7 @@ import '@fortawesome/fontawesome-free/js/brands';
 // Import date-fns webpack
 import { compareAsc, daysToWeeks, format, startOfDay } from 'date-fns';
 import { ro } from 'date-fns/locale';
-console.log(format(new Date(2022, 5, 22), 'M/dd/yy '));
+console.log(format(new Date(2022, 5, 22), 'M/dd/yy'));
 // Currently prints 2022-06-22 on form
 
 // Factory Function Todo Item
@@ -19,7 +19,6 @@ const itemToDo = (title, details, dueDate, priority) => {
     details = details;
     dueDate = dueDate;
     priority = priority;
-    let note = "";
     let checklist = "no";
 
     const setTitle = (newTitle) => {
@@ -34,9 +33,6 @@ const itemToDo = (title, details, dueDate, priority) => {
     const setPriority = (newPriority) => {
         obj.priority = newPriority;
     };
-    const setNote = (newNote) => {
-        obj.note = newNote;
-    };
     const setCheck = (check) => {
         if(check === "yes") {
             obj.checklist = "yes"
@@ -45,15 +41,15 @@ const itemToDo = (title, details, dueDate, priority) => {
             obj.checklist = "no"
         };
     };
-    const obj = {title, details, dueDate, priority, note, checklist, setTitle, setDetails,
-        setDueDate, setPriority, setNote, setCheck};
+    const obj = {title, details, dueDate, priority, checklist, setTitle, setDetails,
+        setDueDate, setPriority, setCheck};
 
     return obj;
 }
 
-let first = itemToDo("Clean Room", "Clean room, its been a few days.", new Date(2022, 5, 21), "low");
-let third = itemToDo("Cut Grass", "Grass is getting tall.", new Date(2022, 5, 20), "medium");
-let fifth = itemToDo("Study Japanese", "JLPT test soon.", new Date(2022, 6, 4), "high");
+let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 5, 21),'M/dd/yy'), "Low");
+let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 5, 20),'M/dd/yy'), "Medium");
+let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 6, 4),'M/dd/yy'), "High");
 
 // Create projects or lists of of todo items.
 const project = () => {
@@ -295,10 +291,52 @@ tasks.addEventListener("click", e=> {
     taskL.setAttribute("id","taskList");
 
     taskL.innerHTML = "<h2><u>All Tasks</u></h2>"
-    main.appendChild(taskL);
 
     allProjects.toDoItems.forEach(e=> {
-        console.log(e)
+        const newTask = document.createElement("div");
+        newTask.classList.add("task")
+
+        const taskName = document.createElement("h4");
+        const taskDescript = document.createElement("p");
+        const taskDate = document.createElement("p");
+        const taskPrio = document.createElement("p");
+        const expandTask = document.createElement("div");
+        expandTask.classList.add("open")
+        const removeTask = document.createElement("div");
+        removeTask.classList.add("remove")
+
+        taskName.innerHTML = e.title;
+        taskDescript.innerHTML = e.details;
+        taskDate.innerHTML = e.dueDate;
+        taskPrio.innerHTML = e.priority;
+        expandTask.innerHTML = `<i class="fa-solid fa-plus"></i>`;
+        removeTask.innerHTML = `<i class="fa-solid fa-x"></i>`;
+
+
+        newTask.appendChild(taskName);
+        newTask.appendChild(taskDescript);
+        newTask.appendChild(taskDate);
+        newTask.appendChild(taskPrio);
+        newTask.appendChild(expandTask);
+        newTask.appendChild(removeTask);
+
+        taskL.appendChild(newTask);
+    })
+
+    main.appendChild(taskL);
+
+    const expandTask = document.querySelectorAll(".open")
+    expandTask.forEach(e=> {
+        e.addEventListener('click', event => {
+            console.log(e)
+        })
+    })
+    const removeTask = document.querySelectorAll(".remove")
+    removeTask.forEach(e=> {
+        e.addEventListener('click', event => {
+            console.log(e.parentNode)
+
+        })
     })
 })
 
@@ -451,7 +489,6 @@ plusTasks.addEventListener("click", e=> {
             else {
                 let newTask = itemToDo(task.value, descrip.value, date.value, prio.value);
                 allProjects.addItem(newTask);
-                console.log(newTask)
 
                 taskForm.remove()
                 removeBlur();

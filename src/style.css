@@ -93,14 +93,46 @@ body {
     grid-column: 2/3 ;
 }
 
+.main h2{
+    margin-bottom: 20px;
+}
+
 .task {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr .2fr .2fr;
+
     padding: 5px;
-    border: 1px solid black;
-    width: 100%;
+    border-bottom: 2px solid black;
+    width: 95%;
+}
+
+.bigTask {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: aliceblue;
+
+    height: 150px;
+    width: 300px;
+    padding: 5px;
+    padding-right: 7px;
+    border: 2px solid black;
+}
+
+.bottomBigTask {
+    display: flex;
+    gap: 50%;
 }
 
 .list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding: 20px;
+}
+
+.open, .remove{
+    cursor: pointer;
 }
 
 /* Footer */
@@ -126,7 +158,7 @@ body {
     background-color: #E3FDFD;
     position: absolute;
     top: 30%;
-    left: 30%;
+    left: 35%;
 }
 
 /* Form Task */
@@ -134,7 +166,7 @@ body {
     background-color: #E3FDFD;
     position: absolute;
     top: 25%;
-    left: 30%;
+    left: 35%;
 }
 
 #addFormTask, #addProjectForm{

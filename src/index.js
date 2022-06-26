@@ -64,7 +64,13 @@ const project = () => {
         itemList.toDoItems = newList;
     };
 
-    const itemList = {toDoItems, addItem, removeItem}
+    const findItem = (item) => {
+        let foundItem = itemList.toDoItems.filter(e => e.title === item);
+
+        return foundItem[0];
+    }
+
+    const itemList = {toDoItems, addItem, removeItem, findItem}
 
     return itemList;
 }
@@ -282,95 +288,142 @@ const removeBlur = function() {
     footer.classList.remove("blur"); 
 }
 
-// Menu and Project event listeners
-tasks.addEventListener("click", e=> {
-    menuCheck();
-
+// Normal Task information
+const taskDetails = function(project, name) {
     const taskL = document.createElement("div");
     taskL.classList.add("list");
     taskL.setAttribute("id","taskList");
-
-    taskL.innerHTML = "<h2><u>All Tasks</u></h2>"
-
-    allProjects.toDoItems.forEach(e=> {
+    
+    taskL.innerHTML = `<h2><u>${name}</u></h2>`;
+    
+    project.toDoItems.forEach(e=> {
         const newTask = document.createElement("div");
         newTask.classList.add("task")
-
+    
         const taskName = document.createElement("h4");
+        taskName.setAttribute("id","taskName");
+    
         const taskDescript = document.createElement("p");
+    
         const taskDate = document.createElement("p");
+    
         const taskPrio = document.createElement("p");
+    
         const expandTask = document.createElement("div");
         expandTask.classList.add("open")
         const removeTask = document.createElement("div");
         removeTask.classList.add("remove")
-
+    
         taskName.innerHTML = e.title;
-        taskDescript.innerHTML = e.details;
+        taskDescript.innerHTML = e.details.slice(0,15) + "...";
         taskDate.innerHTML = e.dueDate;
         taskPrio.innerHTML = e.priority;
-        expandTask.innerHTML = `<i class="fa-solid fa-plus"></i>`;
+        expandTask.innerHTML = `<i class="fa-solid fa-plus-minus"></i>`;
         removeTask.innerHTML = `<i class="fa-solid fa-x"></i>`;
-
-
+    
+    
         newTask.appendChild(taskName);
         newTask.appendChild(taskDescript);
         newTask.appendChild(taskDate);
         newTask.appendChild(taskPrio);
         newTask.appendChild(expandTask);
         newTask.appendChild(removeTask);
-
+    
         taskL.appendChild(newTask);
-    })
-
+        })
+    
     main.appendChild(taskL);
+}
 
+// Remove task
+const removeTask = function(tasks) {
+    const removeT = document.querySelectorAll(".remove")
+    removeT.forEach(e=> {
+        e.addEventListener('click', event => {
+            tasks.removeItem(e.parentElement.querySelector("#taskName").innerHTML);
+            e.parentElement.remove();
+        })
+    })
+}
+
+// Expand and shrink task details
+const expandTask = function(tasks) {
     const expandTask = document.querySelectorAll(".open")
     expandTask.forEach(e=> {
         e.addEventListener('click', event => {
-            console.log(e)
-        })
-    })
-    const removeTask = document.querySelectorAll(".remove")
-    removeTask.forEach(e=> {
-        e.addEventListener('click', event => {
-            console.log(e.parentNode)
 
+            const currentTask = e.parentElement.querySelector("#taskName").innerHTML;
+            
+            const foundTask = allProjects.findItem(currentTask);
+            
+            const expanded = document.createElement("div");
+            expanded.classList.add("bigTask");
+
+            expanded.innerHTML = 
+            `
+            <div id="t">
+                <h4>Task:</h4>
+                <h4>${foundTask.title}</h4>
+            </div>
+            <div id="d">
+                <p>Details;</p>
+                <p>${foundTask.details}</p>
+            </div>
+            <div class="bottomBigTask">
+                <div>
+                    <p>Due:</p>
+                    <p>${foundTask.dueDate}</p>
+                </div>
+                <div>
+                    <p>Priority:</p>
+                    <p>${foundTask.priority}</p>
+                </div>
+            </div>
+            `
+            // <div class="open">
+            //     <i class="fa-solid fa-plus-minus"></i>
+            // </div>
+            // <div class="remove">
+            //     <i class="fa-solid fa-x"></i>
+            // </div>
+
+            e.parentElement.replaceWith(expanded);
         })
     })
+
+}
+
+// Menu and Project event listeners
+tasks.addEventListener("click", e=> {
+    menuCheck();
+
+    taskDetails(allProjects, "All Tasks");
+    expandTask(allProjects);
+    removeTask(allProjects);
 })
 
 day.addEventListener("click", e=> {
     menuCheck();
 
-    const dayL = document.createElement("div");
-    dayL.classList.add("list");
-    dayL.setAttribute("id","dayList");
-
-    dayL.innerHTML = "<h2><u>Today's Task</u></h2>";
-    main.appendChild(dayL);
+    taskDetails(todaysTasks, "Today");
+    expandTask(todaysTasks);
+    removeTask(todaysTasks);
 })
 
 week.addEventListener("click", e=> {
     menuCheck();
 
-    const weekL = document.createElement("div");
-    weekL.classList.add("list");
-    weekL.setAttribute("id","weekList");
-
-    weekL.innerHTML = "<h2><u>This Week's Task</u></h2>";
-    main.appendChild(weekL);
+    taskDetails(thisWeeksTasks, "This Week");
+    expandTask(thisWeeksTasks);
+    removeTask(thisWeeksTasks);
 })
 
 thunder.addEventListener("click", e=> {
     menuCheck();
 
-    const importantL = document.createElement("div");
-    importantL.classList.add("list");
-    importantL.setAttribute("id","importantList");
-
-    importantL.innerHTML = "<h2><u>Important</u></h2>";
-    main.appendChild(importantL);
+    taskDetails(importantTasks, "Important" );
+    expandTask(importantTasks);
+    removeTask(importantTasks);
 })
 
 plusProject.addEventListener("click", e=> {
@@ -415,7 +468,7 @@ plusProject.addEventListener("click", e=> {
                 const list = document.getElementById("projectList");
                 let li = document.createElement("li");
                 li.setAttribute("id", projectN.value)
-                li.setAttribute("id", "task")
+                li.setAttribute("id", "newTaskLi")
 
                 li.innerHTML = projectN.value;
                 list.appendChild(li)
@@ -488,10 +541,21 @@ plusTasks.addEventListener("click", e=> {
             }
             else {
                 let newTask = itemToDo(task.value, descrip.value, date.value, prio.value);
+
+                if(newTask.priority === "High") {
+                    importantTasks.addItem(newTask);
+                }
+
+                // console.log(newTask.date);
+                // console.log(new Date)
                 allProjects.addItem(newTask);
 
                 taskForm.remove()
                 removeBlur();
+                menuCheck();
+                taskDetails(allProjects, "All Tasks");
+                expandTask(allProjects);
+                removeTask(todaysTasks);
             }
         })
         exitForm(taskForm);

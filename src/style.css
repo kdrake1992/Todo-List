@@ -10,7 +10,7 @@ body {
     height: 100vh;
 
     display: grid;
-    grid-template-rows: 1fr 17fr;
+    grid-template-rows: 1fr 17fr 30px;
     grid-template-columns: 1fr 6fr 
 }
 
@@ -62,15 +62,15 @@ body {
 }
 
 .sideMenu #projectList {
-    height: 60vh;
+    height: 50vh;
     overflow: hidden;
     overflow-y: scroll;
 }
 
 .sideMenu .fa-circle-plus {
-    position: absolute;
+    position: fixed;
     bottom: 4rem;
-    right: 2rem;
+    left: 1rem;
 
     size: 50px;
     color: rgb(18, 166, 18);
@@ -107,21 +107,47 @@ body {
 }
 
 .bigTask {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    background-color: aliceblue;
+    display: grid;
+    grid-template-columns: 1fr 1fr 35px 35px;
+    grid-template-rows: 1fr 1fr 1fr;
+
+    background-color: #e8f6f6;
 
     height: 150px;
-    width: 300px;
+    width: 95%;
     padding: 5px;
     padding-right: 7px;
     border: 2px solid black;
+    border-radius: 5px;
 }
 
-.bottomBigTask {
+
+.bigTask #t {
+    grid-column: 1/3;
+    grid-row: 1/2;
+}
+
+.bigTask #d {
+    grid-column: 1/3;
+    grid-row: 2/3;
+}
+
+.bigTask .bottomBigTask {
+    grid-column: 1/3;
+    grid-row: 3/4;
+
     display: flex;
-    gap: 50%;
+    gap: 17.5rem;
+}   
+
+.bigTask .open {
+    grid-column: 3/4;
+    grid-row: 1/2;
+}
+
+.bigTask .close {
+    grid-column: 4/5;
+    grid-row: 1/2;
 }
 
 .list {
@@ -137,9 +163,8 @@ body {
 
 /* Footer */
 .footer {
-    position: absolute;
-    bottom:0;
-    left:0;
+    grid-row: 3/4;
+    grid-column: 1/3;
     width: 100%;
     padding: 5px 0px;
 

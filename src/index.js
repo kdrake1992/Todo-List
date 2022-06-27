@@ -8,10 +8,7 @@ import '@fortawesome/fontawesome-free/js/regular';
 import '@fortawesome/fontawesome-free/js/brands';
 
 // Import date-fns webpack
-import { compareAsc, daysToWeeks, format, startOfDay } from 'date-fns';
-import { ro } from 'date-fns/locale';
-console.log(format(new Date(2022, 5, 22), 'M/dd/yy'));
-// Currently prints 2022-06-22 on form
+import {compareDesc, format, add } from 'date-fns';
 
 // Factory Function Todo Item
 const itemToDo = (title, details, dueDate, priority) => {
@@ -47,9 +44,9 @@ const itemToDo = (title, details, dueDate, priority) => {
     return obj;
 }
 
-let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 5, 21),'M/dd/yy'), "Low");
-let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 5, 20),'M/dd/yy'), "Medium");
-let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 6, 4),'M/dd/yy'), "High");
+let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 7, 21),'M/dd/yy'), "Low");
+let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 8, 20),'M/dd/yy'), "Medium");
+let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 11, 4),'M/dd/yy'), "High");
 
 // Create projects or lists of of todo items.
 const project = () => {
@@ -68,7 +65,7 @@ const project = () => {
         let foundItem = itemList.toDoItems.filter(e => e.title === item);
 
         return foundItem[0];
-    }
+    };
 
     const itemList = {toDoItems, addItem, removeItem, findItem}
 
@@ -129,7 +126,7 @@ const top = function() {
     </div>
 
     <div class="today">
-        <div>${todaysDate()}</div>
+        <div>${todaysDate("long")}</div>
         <div id ="clock" onload="currentTime()"></div>
     </div>
     `;
@@ -151,7 +148,6 @@ const side = function() {
         <li><h2><u>Projects</u></h2></li>
         <li id="addProject"><i class="fa-solid fa-plus"></i> New Project</li>
     </ol>
-
     <div id="addTask"> <i class="fa-solid fa-circle-plus fa-4x"></i></div>
     `;
     
@@ -160,8 +156,7 @@ const side = function() {
 
 const mid = function() {
     main.innerHTML = 
-    `
-    `;
+    ``;
     
     return main;
 }
@@ -176,14 +171,20 @@ const foot = function() {
 }
 
 // Today's date
-const todaysDate = function() {
+const todaysDate = function(length) {
     let today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
     
-    today = mm + '/' + dd + '/' + yyyy;
-    return today;
+    if(length === "long") {
+        today = mm + '/' + dd + '/' + yyyy;
+        return today;
+    }
+
+    else if(length === "short") {
+        return today = format(new Date(yyyy, mm, dd), 'M/dd/yy');
+    }
 }
 
 // Initial site load
@@ -366,7 +367,7 @@ const expandTask = function(tasks) {
                 <h4>${foundTask.title}</h4>
             </div>
             <div id="d">
-                <p>Details;</p>
+                <p>Details:</p>
                 <p>${foundTask.details}</p>
             </div>
             <div class="bottomBigTask">
@@ -426,6 +427,19 @@ thunder.addEventListener("click", e=> {
     removeTask(importantTasks);
 })
 
+// Allows DOM element to show project module
+const projectToModule = function() {
+    let currentProjects = document.querySelectorAll(".projectList");
+    let i = 0;
+    currentProjects.forEach(e => {
+        e.addEventListener("click", e => {
+            taskDetails(projects[i], e.target.innerHTML)
+            i++;
+        });
+    })
+}
+
+// Creates new projects
 plusProject.addEventListener("click", e=> {
     formChecker();
     addBlur();
@@ -468,18 +482,40 @@ plusProject.addEventListener("click", e=> {
                 const list = document.getElementById("projectList");
                 let li = document.createElement("li");
                 li.setAttribute("id", projectN.value)
-                li.setAttribute("id", "newTaskLi")
+                li.setAttribute("class", "projectList")
 
                 li.innerHTML = projectN.value;
                 list.appendChild(li)
 
                 projectForm.remove()
                 removeBlur();
+                projectToModule()
             }
         })
         exitForm(projectForm);
+        projectToModule();
 })
 
+// Date converter for form
+const dateConverter = function(date) {
+    let newDate = date.toString().split("-");
+    return date = format(new Date(newDate[0], (newDate[1] - 1), newDate[2]), 'M/dd/yy');
+}
+
+// Adds more projects to form data
+const addProjectstoForm = function() {
+    for(let i = 0; i < projects.length; i++) {
+        let options = document.getElementById("grouping");
+        let newOption = document.createElement("option");
+        newOption.setAttribute("value", `project${i}`);
+
+        let currentProjects = document.querySelectorAll(".projectList");
+        newOption.text = currentProjects[i].innerHTML;
+        options.appendChild(newOption);
+    }
+}
+
+// Adds Task
 plusTasks.addEventListener("click", e=> {
     formChecker();
     addBlur();
@@ -510,6 +546,14 @@ plusTasks.addEventListener("click", e=> {
             </div>
 
             <div class="formInput">
+                <label for="priority">Project:</label>
+                <select name="grouping" id="grouping">
+                    <option value="default">None</option>
+                </select>
+            </div>
+            
+
+            <div class="formInput">
                 <label for="priority">Priority*:</label>
                 <select name="priority" id="priority" required>
                     <option value="Low">Low</option>
@@ -517,16 +561,17 @@ plusTasks.addEventListener("click", e=> {
                     <option value="High">High</option>
                 </select>
             </div>
-        </div>
 
+        </div>
         <div class="submitAndReset">
             <button type="submit" name="button" id="submit">Submit</button>
         </div>
         </form>
-
         <div id="exit"><i class="fa-solid fa-xmark"></i></div>
         `
         document.body.appendChild(taskForm);
+
+        addProjectstoForm();
 
         document.getElementById("submit").addEventListener('click', e=> {
             e.preventDefault();
@@ -540,14 +585,20 @@ plusTasks.addEventListener("click", e=> {
                 alert("Form Incomplete");
             }
             else {
-                let newTask = itemToDo(task.value, descrip.value, date.value, prio.value);
+                let newTask = itemToDo(task.value, descrip.value, dateConverter(date.value), prio.value);
 
                 if(newTask.priority === "High") {
                     importantTasks.addItem(newTask);
                 }
+                if(newTask.dueDate === todaysDate("short")) {
+                    todaysTasks.addItem(newTask);
+                }
 
-                // console.log(newTask.date);
-                // console.log(new Date)
+                let oneWeekLater = format(add(new Date(todaysDate("short")), {days: 7}), 'M/dd/yy'); 
+
+                if(compareDesc(new Date(oneWeekLater), new Date(newTask.dueDate)) < 7) {
+                    thisWeeksTasks.addItem(newTask)
+                }
                 allProjects.addItem(newTask);
 
                 taskForm.remove()
@@ -559,4 +610,4 @@ plusTasks.addEventListener("click", e=> {
             }
         })
         exitForm(taskForm);
-})
+});

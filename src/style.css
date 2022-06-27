@@ -63,8 +63,7 @@ body {
 
 .sideMenu #projectList {
     height: 50vh;
-    overflow: hidden;
-    overflow-y: scroll;
+    overflow: auto;
 }
 
 .sideMenu .fa-circle-plus {
@@ -80,7 +79,7 @@ body {
     cursor: pointer;
 }
 
-#allTasks:hover, #today:hover, #currentWeek:hover, #important:hover, #addProject:hover, #task:hover {
+#allTasks:hover, #today:hover, #currentWeek:hover, #important:hover, #addProject:hover, #task:hover, .projectList:hover {
     color: rgb(232, 170, 14);
     cursor: pointer;
 }
@@ -211,15 +210,20 @@ body {
 
 #addFormTask .dateAndPrio {
     display: flex;
-    justify-content:space-between
+    justify-content: space-between;
+    gap: 10px;
 }
 
 #addFormTask input[type=text], #addProjectForm input[type=text] {
     width: 350px;
 }
 
-#addFormTask select, input[type=date] {
-    width: 150px;
+#addFormTask select {
+    width: 100px;
+}
+
+#addFormTask input[type=date] {
+    width: 125px;
 }
 
 #addFormTask textarea {

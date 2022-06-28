@@ -183,7 +183,7 @@ const todaysDate = function(length) {
     }
 
     else if(length === "short") {
-        return today = format(new Date(yyyy, mm, dd), 'M/dd/yy');
+        return today = format(new Date(yyyy, mm-1, dd), 'M/dd/yy');
     }
 }
 
@@ -334,6 +334,8 @@ const taskDetails = function(project, name) {
         })
     
     main.appendChild(taskL);
+    projectToModule();
+
 }
 
 // Remove task
@@ -433,7 +435,10 @@ const projectToModule = function() {
     let i = 0;
     currentProjects.forEach(e => {
         e.addEventListener("click", e => {
+            menuCheck();
             taskDetails(projects[i], e.target.innerHTML)
+            expandTask(projects[i]);
+            removeTask(projects[i]);
             i++;
         });
     })
@@ -489,7 +494,6 @@ plusProject.addEventListener("click", e=> {
 
                 projectForm.remove()
                 removeBlur();
-                projectToModule()
             }
         })
         exitForm(projectForm);
@@ -507,7 +511,7 @@ const addProjectstoForm = function() {
     for(let i = 0; i < projects.length; i++) {
         let options = document.getElementById("grouping");
         let newOption = document.createElement("option");
-        newOption.setAttribute("value", `project${i}`);
+        newOption.setAttribute("value", `${i}`);
 
         let currentProjects = document.querySelectorAll(".projectList");
         newOption.text = currentProjects[i].innerHTML;
@@ -580,6 +584,7 @@ plusTasks.addEventListener("click", e=> {
             let descrip = document.getElementById("details");
             let date = document.getElementById("date");
             let prio = document.getElementById("priority");
+            let whichProject = document.getElementById("grouping");
 
             if(task.value === "" || date.value == "") {
                 alert("Form Incomplete");
@@ -590,6 +595,7 @@ plusTasks.addEventListener("click", e=> {
                 if(newTask.priority === "High") {
                     importantTasks.addItem(newTask);
                 }
+
                 if(newTask.dueDate === todaysDate("short")) {
                     todaysTasks.addItem(newTask);
                 }
@@ -599,6 +605,11 @@ plusTasks.addEventListener("click", e=> {
                 if(compareDesc(new Date(oneWeekLater), new Date(newTask.dueDate)) < 7) {
                     thisWeeksTasks.addItem(newTask)
                 }
+
+                if(whichProject.value !== "default") {
+                    projects[whichProject.value].addItem(newTask)
+                }
+
                 allProjects.addItem(newTask);
 
                 taskForm.remove()
@@ -610,4 +621,5 @@ plusTasks.addEventListener("click", e=> {
             }
         })
         exitForm(taskForm);
+        projectToModule();
 });

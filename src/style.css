@@ -156,6 +156,10 @@ body {
     padding: 20px;
 }
 
+.open{
+    margin-right: .5rem;
+}
+
 .open, .remove{
     cursor: pointer;
 }

@@ -11,11 +11,12 @@ import '@fortawesome/fontawesome-free/js/brands';
 import {compareDesc, format, add } from 'date-fns';
 
 // Factory Function Todo Item
-const itemToDo = (title, details, dueDate, priority) => {
+const itemToDo = (title, details, dueDate, priority, formDate) => {
     title = title;
     details = details;
     dueDate = dueDate;
     priority = priority;
+    formDate = formDate;
     let checklist = "no";
 
     const setTitle = (newTitle) => {
@@ -30,6 +31,10 @@ const itemToDo = (title, details, dueDate, priority) => {
     const setPriority = (newPriority) => {
         obj.priority = newPriority;
     };
+    const setFormDate = (newDueDate) => {
+        obj.formDate = newDueDate;
+    };
+
     const setCheck = (check) => {
         if(check === "yes") {
             obj.checklist = "yes"
@@ -38,15 +43,15 @@ const itemToDo = (title, details, dueDate, priority) => {
             obj.checklist = "no"
         };
     };
-    const obj = {title, details, dueDate, priority, checklist, setTitle, setDetails,
-        setDueDate, setPriority, setCheck};
+    const obj = {title, details, dueDate, priority, checklist, formDate,
+         setTitle, setDetails, setDueDate, setPriority, setFormDate, setCheck};
 
     return obj;
 }
 
-let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 7, 21),'M/dd/yy'), "Low");
-let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 8, 20),'M/dd/yy'), "Medium");
-let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 11, 4),'M/dd/yy'), "High");
+let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 7, 21),'M/dd/yy'), "Low", "2022-08-21");
+let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 8, 20),'M/dd/yy'), "Medium", "2022-09-20");
+let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 11, 4),'M/dd/yy'), "High", "2022-12-04");
 
 // Create projects or lists of of todo items.
 const project = () => {
@@ -67,7 +72,22 @@ const project = () => {
         return foundItem[0];
     };
 
-    const itemList = {toDoItems, addItem, removeItem, findItem}
+    const filterToday = () => {
+        let newList = itemList.toDoItems.filter(e => e.dueDate === todaysDate("short"));
+        itemList.toDoItems = newList;
+    }
+
+    const filterWeek = () => {
+        let oneWeekLater = format(add(new Date(todaysDate("short")), {days: 7}), 'M/dd/yy'); 
+        let newList = itemList.toDoItems.filter(e => compareDesc(new Date(oneWeekLater), new Date(e.dueDate), ) == -1);
+        itemList.toDoItems = newList;
+    }
+
+    const filterPrio = () => {
+    }
+
+    const itemList = {toDoItems, addItem, removeItem, findItem,
+        filterToday, filterWeek, filterPrio}
 
     return itemList;
 }
@@ -310,15 +330,20 @@ const taskDetails = function(project, name) {
     
         const taskPrio = document.createElement("p");
     
+        const editTask = document.createElement("div");
+        editTask.classList.add("edit")
+
         const expandTask = document.createElement("div");
         expandTask.classList.add("open")
+
         const removeTask = document.createElement("div");
         removeTask.classList.add("remove")
     
         taskName.innerHTML = e.title;
-        taskDescript.innerHTML = e.details.slice(0,15) + "...";
+        taskDescript.innerHTML = e.details.slice(0,10) + "...";
         taskDate.innerHTML = e.dueDate;
         taskPrio.innerHTML = e.priority;
+        editTask.innerHTML = `<i class="fa-solid fa-pencil"></i>`;
         expandTask.innerHTML = `<i class="fa-solid fa-plus-minus"></i>`;
         removeTask.innerHTML = `<i class="fa-solid fa-x"></i>`;
     
@@ -327,6 +352,7 @@ const taskDetails = function(project, name) {
         newTask.appendChild(taskDescript);
         newTask.appendChild(taskDate);
         newTask.appendChild(taskPrio);
+        newTask.appendChild(editTask);
         newTask.appendChild(expandTask);
         newTask.appendChild(removeTask);
     
@@ -338,10 +364,135 @@ const taskDetails = function(project, name) {
 
 }
 
+// Edit task
+const editTask = function(tasks) {
+    const editT = document.querySelectorAll(".edit");
+    editT.forEach(e => {
+        e.addEventListener("click", ee => {
+            formChecker();
+            addBlur();
+
+            let currentTask = e.parentElement.querySelector("#taskName").innerHTML;
+            const foundTask = allProjects.findItem(currentTask);
+
+            const taskForm = document.createElement("div");
+            taskForm.classList.add("formTask");
+            taskForm.setAttribute("id", "formTask")
+        
+            taskForm.innerHTML = `
+                <form id="addFormTask">
+                <legend>Edit Task</legend>
+        
+                <div class="formInput">
+                    <label for="task">Task*:</label>
+                    <input type="text" name="task" id="task" 
+                    value="${foundTask.title}" required 
+                    placeholder="Task (Max 15 Characters)" maxlength="15">
+                </div>
+        
+                <div class="formInput">
+                    <label for="details">Details:</label>
+                    <textarea name="details" id="details" cols="30" rows="10"
+                    placeholder="Task Details(Optional)">${foundTask.details}</textarea>
+                </div>
+        
+                <div class="dateAndPrio">
+                    <div class="formInput">
+                        <label for="date">Due Date*:</label>
+                        <input type="date" name="date" id="date" required
+                        value="${foundTask.formDate}">
+                    </div>
+        
+                    <div class="formInput">
+                        <label for="priority">Project:</label>
+                        <select name="grouping" id="grouping">
+                            <option value="default">None</option>
+                        </select>
+                    </div>
+                    
+        
+                    <div class="formInput">
+                        <label for="priority">Priority*:</label>
+                        <select name="priority" id="priority" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+        
+                </div>
+                <div class="submitAndReset">
+                    <button type="submit" name="button" id="submit">Submit</button>
+                </div>
+                </form>
+                <div id="exit"><i class="fa-solid fa-xmark"></i></div>
+                `
+                document.body.appendChild(taskForm);
+        
+                addProjectstoForm();
+        
+                document.getElementById("submit").addEventListener('click', e=> {
+                    e.preventDefault();
+        
+                    let task = document.getElementById("task");
+                    let descrip = document.getElementById("details");
+                    let date = document.getElementById("date");
+                    let prio = document.getElementById("priority");
+                    let whichProject = document.getElementById("grouping");
+        
+                    if(task.value === "" || date.value == "") {
+                        alert("Form Incomplete");
+                    }
+                    else {
+                        foundTask.setTitle(task.value);
+                        foundTask.setDetails(descrip.value);
+                        foundTask.setDueDate(dateConverter(date.value));
+                        foundTask.setPriority(prio.value);
+                        foundTask.setFormDate(date.value)
+
+                        console.log(foundTask.dueDate)
+        
+                        if(foundTask.priority === "High") {
+                            console.log(importantTasks);
+                            importantTasks.addItem(foundTask);
+                            console.log(importantTasks);
+                        }
+        
+                        if(foundTask.dueDate === todaysDate("short")) {
+                            todaysTasks.addItem(foundTask);
+                        }
+        
+                        let oneWeekLater = format(add(new Date(todaysDate("short")), {days: 7}), 'M/dd/yy'); 
+
+                        if(compareDesc(new Date(oneWeekLater), new Date(foundTask.dueDate)) < 7) {
+                            thisWeeksTasks.addItem(foundTask)
+                        }
+        
+                        if(whichProject.value !== "default") {
+                            projects[whichProject.value].addItem(foundTask);
+                        }
+                        
+                        todaysTasks.filterToday();
+                        thisWeeksTasks.filterWeek()
+                        importantTasks.filterPrio();
+                        taskForm.remove()
+                        removeBlur();
+                        menuCheck();
+                        taskDetails(allProjects, "All Tasks");
+                        expandTask(allProjects);
+                        removeTask(allProjects);
+                    }
+                })
+                exitForm(taskForm);
+                projectToModule();
+        })
+    })            
+}
+
 // Remove task
 const removeTask = function(tasks) {
     const removeT = document.querySelectorAll(".remove")
-    removeT.forEach(e=> {
+    removeT.forEach(e => {
         e.addEventListener('click', event => {
             tasks.removeItem(e.parentElement.querySelector("#taskName").innerHTML);
             e.parentElement.remove();
@@ -352,7 +503,7 @@ const removeTask = function(tasks) {
 // Expand and shrink task details
 const expandTask = function(tasks) {
     const expandTask = document.querySelectorAll(".open")
-    expandTask.forEach(e=> {
+    expandTask.forEach(e => {
         e.addEventListener('click', event => {
 
             const currentTask = e.parentElement.querySelector("#taskName").innerHTML;
@@ -393,7 +544,6 @@ const expandTask = function(tasks) {
             e.parentElement.replaceWith(expanded);
         })
     })
-
 }
 
 // Menu and Project event listeners
@@ -403,6 +553,7 @@ tasks.addEventListener("click", e=> {
     taskDetails(allProjects, "All Tasks");
     expandTask(allProjects);
     removeTask(allProjects);
+    editTask(allProjects);
 })
 
 day.addEventListener("click", e=> {
@@ -411,6 +562,7 @@ day.addEventListener("click", e=> {
     taskDetails(todaysTasks, "Today");
     expandTask(todaysTasks);
     removeTask(todaysTasks);
+    editTask(todaysTasks);
 })
 
 week.addEventListener("click", e=> {
@@ -419,6 +571,7 @@ week.addEventListener("click", e=> {
     taskDetails(thisWeeksTasks, "This Week");
     expandTask(thisWeeksTasks);
     removeTask(thisWeeksTasks);
+    editTask(thisWeeksTasks);
 })
 
 thunder.addEventListener("click", e=> {
@@ -427,6 +580,7 @@ thunder.addEventListener("click", e=> {
     taskDetails(importantTasks, "Important" );
     expandTask(importantTasks);
     removeTask(importantTasks);
+    editTask(importantTasks);
 })
 
 // Allows DOM element to show project module
@@ -439,6 +593,7 @@ const projectToModule = function() {
             taskDetails(projects[i], e.target.innerHTML)
             expandTask(projects[i]);
             removeTask(projects[i]);
+            editTask(projects[i]);
             i++;
         });
     })
@@ -459,7 +614,8 @@ plusProject.addEventListener("click", e=> {
 
         <div class="formInput">
             <label for="task">Project*:</label>
-            <input type="text" name="projectName" id="projectName" required placeholder="Project Name">
+            <input type="text" name="projectName" id="projectName" required 
+            placeholder="Project Name (Max 20 Characters)" maxlength="20">
         </div>
 
         <div class="submitAndReset">
@@ -534,7 +690,8 @@ plusTasks.addEventListener("click", e=> {
 
         <div class="formInput">
             <label for="task">Task*:</label>
-            <input type="text" name="task" id="task" required placeholder="Task">
+            <input type="text" name="task" id="task" required 
+            placeholder="Task (Max 15 Characters)" maxlength="15">
         </div>
 
         <div class="formInput">
@@ -590,7 +747,7 @@ plusTasks.addEventListener("click", e=> {
                 alert("Form Incomplete");
             }
             else {
-                let newTask = itemToDo(task.value, descrip.value, dateConverter(date.value), prio.value);
+                let newTask = itemToDo(task.value, descrip.value, dateConverter(date.value), prio.value, date.value);
 
                 if(newTask.priority === "High") {
                     importantTasks.addItem(newTask);
@@ -602,7 +759,7 @@ plusTasks.addEventListener("click", e=> {
 
                 let oneWeekLater = format(add(new Date(todaysDate("short")), {days: 7}), 'M/dd/yy'); 
 
-                if(compareDesc(new Date(oneWeekLater), new Date(newTask.dueDate)) < 7) {
+                if(compareDesc(new Date(oneWeekLater), new Date(newTask.dueDate)) != 1) {
                     thisWeeksTasks.addItem(newTask)
                 }
 
@@ -617,7 +774,7 @@ plusTasks.addEventListener("click", e=> {
                 menuCheck();
                 taskDetails(allProjects, "All Tasks");
                 expandTask(allProjects);
-                removeTask(todaysTasks);
+                removeTask(allProjects);
             }
         })
         exitForm(taskForm);

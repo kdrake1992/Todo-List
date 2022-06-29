@@ -84,6 +84,8 @@ const project = () => {
     }
 
     const filterPrio = () => {
+        let newList = itemList.toDoItems.filter(e => e.priority === "High");
+        itemList.toDoItems = newList;
     }
 
     const itemList = {toDoItems, addItem, removeItem, findItem,
@@ -104,6 +106,7 @@ let projects = [];
 allProjects.addItem(first);
 allProjects.addItem(third);
 allProjects.addItem(fifth);
+importantTasks.addItem(fifth);
 
 // DOM for the body
 const body = document.body;
@@ -449,25 +452,38 @@ const editTask = function(tasks) {
                         foundTask.setDueDate(dateConverter(date.value));
                         foundTask.setPriority(prio.value);
                         foundTask.setFormDate(date.value)
-
-                        console.log(foundTask.dueDate)
         
                         if(foundTask.priority === "High") {
-                            console.log(importantTasks);
-                            importantTasks.addItem(foundTask);
-                            console.log(importantTasks);
+                            if(importantTasks.findItem(foundTask.title) === foundTask) {
+                                // Do Nothing
+                            }
+                            else {
+                                importantTasks.addItem(foundTask);
+                            }
                         }
-        
+
                         if(foundTask.dueDate === todaysDate("short")) {
-                            todaysTasks.addItem(foundTask);
+                            if(todaysTasks.findItem(foundTask.title) === foundTask) {
+                                // Do Nothing
+                            }
+                            else {
+                                todaysTasks.addItem(foundTask);
+                            }
                         }
         
                         let oneWeekLater = format(add(new Date(todaysDate("short")), {days: 7}), 'M/dd/yy'); 
 
+                        const testing = thisWeeksTasks.findItem(foundTask);
+
                         if(compareDesc(new Date(oneWeekLater), new Date(foundTask.dueDate)) < 7) {
-                            thisWeeksTasks.addItem(foundTask)
+                            if(thisWeeksTasks.findItem(foundTask.title) === foundTask) {
+                                // Do Nothing
+                            }
+                            else {
+                                thisWeeksTasks.addItem(foundTask);
+                            }
                         }
-        
+                        
                         if(whichProject.value !== "default") {
                             projects[whichProject.value].addItem(foundTask);
                         }
@@ -586,8 +602,10 @@ thunder.addEventListener("click", e=> {
 // Allows DOM element to show project module
 const projectToModule = function() {
     let currentProjects = document.querySelectorAll(".projectList");
+
     let i = 0;
     currentProjects.forEach(e => {
+        console.log(e);
         e.addEventListener("click", e => {
             menuCheck();
             taskDetails(projects[i], e.target.innerHTML)
@@ -630,17 +648,29 @@ plusProject.addEventListener("click", e=> {
         document.getElementById("submit").addEventListener('click', e=> {
             e.preventDefault();
 
-            let projectN = document.getElementById("projectName");
+            const projectN = document.getElementById("projectName");
+            const list = document.getElementById("projectList");
 
+            let doubleProject = [];
+
+            list.childNodes.forEach(e => {
+                if (typeof e.innerHTML !== "undefined") {
+                    doubleProject.push(e.innerHTML)
+                }
+            })
 
             if(projectN.value === "") {
                 alert("Form Incomplete");
             }
+
+            else if(doubleProject.includes(projectN.value)) {
+                alert("Project already exists.")
+            }
+
             else {
                 let newProject = project()
                 projects.push(newProject);
 
-                const list = document.getElementById("projectList");
                 let li = document.createElement("li");
                 li.setAttribute("id", projectN.value)
                 li.setAttribute("class", "projectList")

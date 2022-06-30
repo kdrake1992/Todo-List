@@ -10,14 +10,13 @@ import '@fortawesome/fontawesome-free/js/brands';
 // Import date-fns webpack
 import {compareDesc, format, add } from 'date-fns';
 
-// Factory Function Todo Item
+// Factory Function Todo Item and uniqueID
 const itemToDo = (title, details, dueDate, priority, formDate) => {
     title = title;
     details = details;
     dueDate = dueDate;
     priority = priority;
     formDate = formDate;
-    let checklist = "no";
 
     const setTitle = (newTitle) => {
         obj.title = newTitle;
@@ -35,16 +34,8 @@ const itemToDo = (title, details, dueDate, priority, formDate) => {
         obj.formDate = newDueDate;
     };
 
-    const setCheck = (check) => {
-        if(check === "yes") {
-            obj.checklist = "yes"
-        }
-        else {
-            obj.checklist = "no"
-        };
-    };
-    const obj = {title, details, dueDate, priority, checklist, formDate,
-         setTitle, setDetails, setDueDate, setPriority, setFormDate, setCheck};
+    const obj = {title, details, dueDate, priority, formDate,
+         setTitle, setDetails, setDueDate, setPriority, setFormDate};
 
     return obj;
 }
@@ -54,7 +45,9 @@ let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022
 let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 11, 4),'M/dd/yy'), "High", "2022-12-04");
 
 // Create projects or lists of of todo items.
-const project = () => {
+const project = (name) => {
+    name = name;
+
     let toDoItems = [];
 
     const addItem = (item) => {
@@ -72,8 +65,13 @@ const project = () => {
         return foundItem[0];
     };
 
+    const filterAll = (item) => {
+        let newList = itemList.toDoItems.filter(e => e.uniID !== item.uniID)
+        itemList.toDoItems = newList;  
+    }
+
     const filterToday = () => {
-        let newList = itemList.toDoItems.filter(e => e.dueDate === todaysDate("short"));
+        let newList = itemList.toDoItems.filter(e => e.dueDate !== todaysDate("short"));
         itemList.toDoItems = newList;
     }
 
@@ -88,17 +86,17 @@ const project = () => {
         itemList.toDoItems = newList;
     }
 
-    const itemList = {toDoItems, addItem, removeItem, findItem,
-        filterToday, filterWeek, filterPrio}
+    const itemList = {name, toDoItems, addItem, removeItem, findItem,
+        filterAll, filterToday, filterWeek, filterPrio}
 
     return itemList;
 }
 
 // Create default projects; all, this week, and important
-const allProjects = project();
-const todaysTasks = project()
-const thisWeeksTasks = project();
-const importantTasks = project();
+const allProjects = project("allProjects");
+const todaysTasks = project("todaysTasks")
+const thisWeeksTasks = project("thisWeeksTasks");
+const importantTasks = project("importantTasks");
 let projects = [];
 
 
@@ -251,7 +249,7 @@ const thunder = document.getElementById("important");
 const plusProject = document.getElementById("addProject");
 const plusTasks = document.getElementById("addTask");
 
-// Check if elements exist
+// Check if other form elements exist
 const formChecker = function() {
     const projectCheck = document.getElementById('projectForm');
     if (!!projectCheck) {
@@ -363,8 +361,6 @@ const taskDetails = function(project, name) {
         })
     
     main.appendChild(taskL);
-    projectToModule();
-
 }
 
 // Edit task
@@ -479,7 +475,7 @@ const editTask = function(tasks) {
                             if(thisWeeksTasks.findItem(foundTask.title) === foundTask) {
                                 // Do Nothing
                             }
-                            else {
+                            else {;
                                 thisWeeksTasks.addItem(foundTask);
                             }
                         }
@@ -487,7 +483,7 @@ const editTask = function(tasks) {
                         if(whichProject.value !== "default") {
                             projects[whichProject.value].addItem(foundTask);
                         }
-                        
+
                         todaysTasks.filterToday();
                         thisWeeksTasks.filterWeek()
                         importantTasks.filterPrio();
@@ -497,10 +493,10 @@ const editTask = function(tasks) {
                         taskDetails(allProjects, "All Tasks");
                         expandTask(allProjects);
                         removeTask(allProjects);
+                        editTask(allProjects);
                     }
                 })
                 exitForm(taskForm);
-                projectToModule();
         })
     })            
 }
@@ -562,60 +558,45 @@ const expandTask = function(tasks) {
     })
 }
 
+// Menu functions together
+const menuStandard = function(project, name) {
+    menuCheck();
+    taskDetails(project, name);
+    expandTask(project);
+    removeTask(project);
+    editTask(project);
+}
+
 // Menu and Project event listeners
 tasks.addEventListener("click", e=> {
-    menuCheck();
-
-    taskDetails(allProjects, "All Tasks");
-    expandTask(allProjects);
-    removeTask(allProjects);
-    editTask(allProjects);
+    menuStandard(allProjects, "All Tasks")
 })
 
 day.addEventListener("click", e=> {
-    menuCheck();
-
-    taskDetails(todaysTasks, "Today");
-    expandTask(todaysTasks);
-    removeTask(todaysTasks);
-    editTask(todaysTasks);
+    menuStandard(todaysTasks, "Today")
 })
 
 week.addEventListener("click", e=> {
-    menuCheck();
-
-    taskDetails(thisWeeksTasks, "This Week");
-    expandTask(thisWeeksTasks);
-    removeTask(thisWeeksTasks);
-    editTask(thisWeeksTasks);
+    menuStandard(thisWeeksTasks, "This Week")
 })
 
 thunder.addEventListener("click", e=> {
-    menuCheck();
-
-    taskDetails(importantTasks, "Important" );
-    expandTask(importantTasks);
-    removeTask(importantTasks);
-    editTask(importantTasks);
+    menuStandard(importantTasks, "Important")
 })
 
 // Allows DOM element to show project module
 const projectToModule = function() {
     let currentProjects = document.querySelectorAll(".projectList");
-
-    let i = 0;
     currentProjects.forEach(e => {
-        console.log(e);
         e.addEventListener("click", e => {
-            menuCheck();
-            taskDetails(projects[i], e.target.innerHTML)
-            expandTask(projects[i]);
-            removeTask(projects[i]);
-            editTask(projects[i]);
-            i++;
-        });
+            projects.forEach(element => {
+                if(element.name === e.target.innerHTML) {
+                    menuStandard(element, element.name)
+                }
+            })
+        })
     })
-}
+};
 
 // Creates new projects
 plusProject.addEventListener("click", e=> {
@@ -668,7 +649,7 @@ plusProject.addEventListener("click", e=> {
             }
 
             else {
-                let newProject = project()
+                let newProject = project(projectN.value)
                 projects.push(newProject);
 
                 let li = document.createElement("li");
@@ -677,9 +658,11 @@ plusProject.addEventListener("click", e=> {
 
                 li.innerHTML = projectN.value;
                 list.appendChild(li)
+                menuStandard(allProjects, "All Tasks")
 
                 projectForm.remove()
                 removeBlur();
+                projectToModule();
             }
         })
         exitForm(projectForm);
@@ -697,9 +680,8 @@ const addProjectstoForm = function() {
     for(let i = 0; i < projects.length; i++) {
         let options = document.getElementById("grouping");
         let newOption = document.createElement("option");
-        newOption.setAttribute("value", `${i}`);
-
         let currentProjects = document.querySelectorAll(".projectList");
+        newOption.setAttribute("value", currentProjects[i].innerHTML);
         newOption.text = currentProjects[i].innerHTML;
         options.appendChild(newOption);
     }
@@ -794,19 +776,19 @@ plusTasks.addEventListener("click", e=> {
                 }
 
                 if(whichProject.value !== "default") {
-                    projects[whichProject.value].addItem(newTask)
+                    projects.forEach(e => {
+                        if(e.name === whichProject.value) {
+                            e.addItem(newTask);
+                        }
+                    })
                 }
 
                 allProjects.addItem(newTask);
 
                 taskForm.remove()
                 removeBlur();
-                menuCheck();
-                taskDetails(allProjects, "All Tasks");
-                expandTask(allProjects);
-                removeTask(allProjects);
+                menuStandard(allProjects, "All Tasks")
             }
         })
         exitForm(taskForm);
-        projectToModule();
 });

@@ -10,12 +10,13 @@ import '@fortawesome/fontawesome-free/js/brands';
 import {compareDesc, format, add } from 'date-fns';
 
 // Factory Function Todo Item and uniqueID
-const itemToDo = (title, details, dueDate, priority, formDate) => {
+const itemToDo = (title, details, dueDate, priority, formDate, projectName) => {
     title = title;
     details = details;
     dueDate = dueDate;
     priority = priority;
     formDate = formDate;
+    projectName = projectName;
 
     const setTitle = (newTitle) => {
         obj.title = newTitle;
@@ -32,16 +33,19 @@ const itemToDo = (title, details, dueDate, priority, formDate) => {
     const setFormDate = (newDueDate) => {
         obj.formDate = newDueDate;
     };
+    const setProjectName = (projectName) => {
+        obj.projectName = projectName;
+    };
 
-    const obj = {title, details, dueDate, priority, formDate,
-         setTitle, setDetails, setDueDate, setPriority, setFormDate};
+    const obj = {title, details, dueDate, priority, formDate, projectName,
+         setTitle, setDetails, setDueDate, setPriority, setFormDate, setProjectName};
 
     return obj;
 }
 
-let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 7, 21),'M/dd/yy'), "Low", "2022-08-21");
-let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 8, 20),'M/dd/yy'), "Medium", "2022-09-20");
-let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 11, 4),'M/dd/yy'), "High", "2022-12-04");
+let first = itemToDo("Clean Room", "Clean room, its been a few days.", format(new Date(2022, 7, 21),'M/dd/yy'), "Low", "2022-08-21", "default");
+let third = itemToDo("Cut Grass", "Grass is getting tall.", format(new Date(2022, 8, 20),'M/dd/yy'), "Medium", "2022-09-20", "default");
+let fifth = itemToDo("Study Japanese", "JLPT test soon.", format(new Date(2022, 11, 4),'M/dd/yy'), "High", "2022-12-04", "default");
 
 // Create projects or lists of of todo items.
 const project = (name) => {
@@ -49,6 +53,9 @@ const project = (name) => {
 
     let toDoItems = [];
 
+    const setName = (newName) => {
+        name = newName;
+    }
     const addItem = (item) => {
         itemList.toDoItems.push(item);
     };
@@ -119,29 +126,27 @@ if(!localStorage.getItem("localAT")) {
 
 else {
     JSON.parse(localStorage.getItem("localAT")).toDoItems.forEach(e => {
-        allProjects.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+        allProjects.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate, e.projectName));
     })
     JSON.parse(localStorage.getItem("localTT")).toDoItems.forEach(e => {
-        todaysTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+        todaysTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate, e.projectName));
     })
     JSON.parse(localStorage.getItem("localTWT")).toDoItems.forEach(e => {
-        thisWeeksTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+        thisWeeksTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate, e.projectName));
     })
     JSON.parse(localStorage.getItem("localI")).toDoItems.forEach(e => {
-        importantTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+        importantTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate, e.projectName));
     })
     JSON.parse(localStorage.getItem("localP")).forEach(e => {
         let localProject = project(e.name)
-            localProject.toDoItems.forEach(e => {
-                localProject.addItem(e.title, e.details, e.dueDate, e.priority, e.formDate);
+            allProjects.toDoItems.forEach(e => {
+                if(localProject.name === e.projectName) {
+                    localProject.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate, e.projectName));
+                }
             })
         projects.push(localProject);
     })
 };
-
-projects.forEach(e => {
-    console.log(e);
-})
 
 // DOM for the body
 const body = document.body;
@@ -484,7 +489,8 @@ const editTask = function(tasks) {
                         foundTask.setDetails(descrip.value);
                         foundTask.setDueDate(dateConverter(date.value));
                         foundTask.setPriority(prio.value);
-                        foundTask.setFormDate(date.value)
+                        foundTask.setFormDate(date.value);
+                        foundTask.setProjectName(whichProject.value);
         
                         if(foundTask.priority === "High") {
                             if(importantTasks.findItem(foundTask.title) === foundTask) {
@@ -514,9 +520,15 @@ const editTask = function(tasks) {
                                 thisWeeksTasks.addItem(foundTask);
                             }
                         }
+                        console.log(projects)
+                        console.log(whichProject.value)
                         
                         if(whichProject.value !== "default") {
-                            projects[whichProject.value].addItem(foundTask);
+                            projects.forEach(e => {
+                                if(e.name == whichProject.value) {
+                                    e.addItem(foundTask);
+                                }
+                            })
                         }
 
                         todaysTasks.filterToday();
@@ -641,6 +653,16 @@ const projectToModule = function() {
     })
 };
 
+// Creates a new li for project list
+const projectListHTML = function(name, list) {
+    let li = document.createElement("li");
+    li.setAttribute("id", name)
+    li.setAttribute("class", "projectList")
+
+    li.innerHTML = name;
+    list.appendChild(li)
+}
+
 // Creates new projects
 plusProject.addEventListener("click", e=> {
     formChecker();
@@ -694,14 +716,9 @@ plusProject.addEventListener("click", e=> {
             else {
                 let newProject = project(projectN.value)
                 projects.push(newProject);
-                localStorage.setItem("localP", JSON.stringify(projects));
 
-                let li = document.createElement("li");
-                li.setAttribute("id", projectN.value)
-                li.setAttribute("class", "projectList")
+                projectListHTML(projectN.value, list);
 
-                li.innerHTML = projectN.value;
-                list.appendChild(li)
                 menuStandard(allProjects, "All Tasks")
 
                 updateAllLocal();
@@ -804,8 +821,7 @@ plusTasks.addEventListener("click", e=> {
                 alert("Form Incomplete");
             }
             else {
-                let newTask = itemToDo(task.value, descrip.value, dateConverter(date.value), prio.value, date.value);
-
+                let newTask = itemToDo(task.value, descrip.value, dateConverter(date.value), prio.value, date.value, whichProject.value);
                 if(newTask.priority === "High") {
                     importantTasks.addItem(newTask);
                 }
@@ -834,8 +850,15 @@ plusTasks.addEventListener("click", e=> {
                 taskForm.remove()
                 removeBlur();
                 menuStandard(allProjects, "All Tasks")
-                console.log(projects)
             }
         })
         exitForm(taskForm);
 });
+
+// Updates projects from local storage
+projects.forEach(e=> {
+    const list = document.getElementById("projectList");
+    projectListHTML(e.name, list)
+})
+
+projectToModule();

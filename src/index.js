@@ -98,6 +98,9 @@ const project = (name) => {
     return itemList;
 }
 
+// Top of the page userName
+let name = "";
+
 // Create default projects; all, this week, and important
 let allProjects = project("allProjects");
 let todaysTasks = project("todaysTasks")
@@ -122,6 +125,8 @@ if(!localStorage.getItem("localAT")) {
     importantTasks.addItem(fifth);
 
     updateAllLocal();
+    name = prompt("Please enter your name", "");
+    localStorage.setItem("localName", name)
 }
 
 else {
@@ -146,6 +151,8 @@ else {
             })
         projects.push(localProject);
     })
+
+    name = localStorage.getItem("localName");
 };
 
 // DOM for the body
@@ -185,7 +192,7 @@ const top = function() {
     </div>
 
     <div class="userName">
-        <p id="small">Hello there, Kevin Drake!</p>
+        <p id="small">Hello there, ${name}!</p>
     </div>
 
     <div class="today">

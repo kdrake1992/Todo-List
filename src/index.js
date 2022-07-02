@@ -4,7 +4,6 @@ import './style.css'
 // Fontawesome Free
 import '@fortawesome/fontawesome-free/js/fontawesome';
 import '@fortawesome/fontawesome-free/js/solid';
-import '@fortawesome/fontawesome-free/js/regular';
 import '@fortawesome/fontawesome-free/js/brands';
 
 // Import date-fns webpack
@@ -71,7 +70,7 @@ const project = (name) => {
     }
 
     const filterToday = () => {
-        let newList = itemList.toDoItems.filter(e => e.dueDate !== todaysDate("short"));
+        let newList = itemList.toDoItems.filter(e => e.dueDate === todaysDate("short"));
         itemList.toDoItems = newList;
     }
 
@@ -93,18 +92,56 @@ const project = (name) => {
 }
 
 // Create default projects; all, this week, and important
-const allProjects = project("allProjects");
-const todaysTasks = project("todaysTasks")
-const thisWeeksTasks = project("thisWeeksTasks");
-const importantTasks = project("importantTasks");
+let allProjects = project("allProjects");
+let todaysTasks = project("todaysTasks")
+let thisWeeksTasks = project("thisWeeksTasks");
+let importantTasks = project("importantTasks");
 let projects = [];
 
+// localStorage
+const updateAllLocal = function() {
+    localStorage.setItem("localAT", JSON.stringify(allProjects));
+    localStorage.setItem("localTT", JSON.stringify(todaysTasks));
+    localStorage.setItem("localTWT", JSON.stringify(thisWeeksTasks));
+    localStorage.setItem("localI", JSON.stringify(importantTasks));
+    localStorage.setItem("localP", JSON.stringify(projects));
+}
 
-// Filler data
-allProjects.addItem(first);
-allProjects.addItem(third);
-allProjects.addItem(fifth);
-importantTasks.addItem(fifth);
+if(!localStorage.getItem("localAT")) {
+    // Filler data
+    allProjects.addItem(first);
+    allProjects.addItem(third);
+    allProjects.addItem(fifth);
+    importantTasks.addItem(fifth);
+
+    updateAllLocal();
+}
+
+else {
+    JSON.parse(localStorage.getItem("localAT")).toDoItems.forEach(e => {
+        allProjects.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+    })
+    JSON.parse(localStorage.getItem("localTT")).toDoItems.forEach(e => {
+        todaysTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+    })
+    JSON.parse(localStorage.getItem("localTWT")).toDoItems.forEach(e => {
+        thisWeeksTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+    })
+    JSON.parse(localStorage.getItem("localI")).toDoItems.forEach(e => {
+        importantTasks.addItem(itemToDo(e.title, e.details, e.dueDate, e.priority, e.formDate));
+    })
+    JSON.parse(localStorage.getItem("localP")).forEach(e => {
+        let localProject = project(e.name)
+            localProject.toDoItems.forEach(e => {
+                localProject.addItem(e.title, e.details, e.dueDate, e.priority, e.formDate);
+            })
+        projects.push(localProject);
+    })
+};
+
+projects.forEach(e => {
+    console.log(e);
+})
 
 // DOM for the body
 const body = document.body;
@@ -460,7 +497,7 @@ const editTask = function(tasks) {
 
                         if(foundTask.dueDate === todaysDate("short")) {
                             if(todaysTasks.findItem(foundTask.title) === foundTask) {
-                                // Do Nothing
+                                // Do nothing
                             }
                             else {
                                 todaysTasks.addItem(foundTask);
@@ -469,9 +506,7 @@ const editTask = function(tasks) {
         
                         let oneWeekLater = format(add(new Date(todaysDate("short")), {days: 7}), 'M/dd/yy'); 
 
-                        const testing = thisWeeksTasks.findItem(foundTask);
-
-                        if(compareDesc(new Date(oneWeekLater), new Date(foundTask.dueDate)) < 7) {
+                        if(compareDesc(new Date(oneWeekLater), new Date(foundTask.dueDate)) < 7) {       
                             if(thisWeeksTasks.findItem(foundTask.title) === foundTask) {
                                 // Do Nothing
                             }
@@ -487,7 +522,8 @@ const editTask = function(tasks) {
                         todaysTasks.filterToday();
                         thisWeeksTasks.filterWeek()
                         importantTasks.filterPrio();
-                        taskForm.remove()
+                        taskForm.remove();
+                        updateAllLocal();
                         removeBlur();
                         menuCheck();
                         taskDetails(allProjects, "All Tasks");
@@ -506,7 +542,14 @@ const removeTask = function(tasks) {
     const removeT = document.querySelectorAll(".remove")
     removeT.forEach(e => {
         e.addEventListener('click', event => {
-            tasks.removeItem(e.parentElement.querySelector("#taskName").innerHTML);
+            let removeThisTask = e.parentElement.querySelector("#taskName").innerHTML
+            tasks.removeItem(removeThisTask);
+            allProjects.removeItem(removeThisTask);
+            todaysTasks.removeItem(removeThisTask);
+            thisWeeksTasks.removeItem(removeThisTask);
+            importantTasks.removeItem(removeThisTask);
+            removeThisTask = null;
+            updateAllLocal();
             e.parentElement.remove();
         })
     })
@@ -651,6 +694,7 @@ plusProject.addEventListener("click", e=> {
             else {
                 let newProject = project(projectN.value)
                 projects.push(newProject);
+                localStorage.setItem("localP", JSON.stringify(projects));
 
                 let li = document.createElement("li");
                 li.setAttribute("id", projectN.value)
@@ -660,6 +704,7 @@ plusProject.addEventListener("click", e=> {
                 list.appendChild(li)
                 menuStandard(allProjects, "All Tasks")
 
+                updateAllLocal();
                 projectForm.remove()
                 removeBlur();
                 projectToModule();
@@ -784,10 +829,12 @@ plusTasks.addEventListener("click", e=> {
                 }
 
                 allProjects.addItem(newTask);
+                updateAllLocal();
 
                 taskForm.remove()
                 removeBlur();
                 menuStandard(allProjects, "All Tasks")
+                console.log(projects)
             }
         })
         exitForm(taskForm);
